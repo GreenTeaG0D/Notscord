@@ -4,8 +4,7 @@ from GUI_Constructor import *
 import webbrowser
 
 
-def pull_entries(*args, **kwargs):
-    print(*args, **kwargs)
+def pull_entries():
     Username = E_Username.get()
     Password = E_Password.get()
     print(Username, Password)
@@ -19,7 +18,6 @@ B_Submit = GC.Button(window, {'command':pull_entries, 'text':'Submit'}, {'column
 B_Submit = GC.Button(window, {'command':exit, 'text':'Close'}, {'column':1, 'row':2})
 
 def open_help_website():
-    print("open_help_website")
     webbrowser.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=ygUjcmljayBhc3RsZXkgbmV2ZXIgZ29ubmEgZ2l2ZSB5b3UgdXA%3D')
 
 menubar = GC.Menu(window)

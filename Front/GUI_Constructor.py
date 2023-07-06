@@ -65,8 +65,6 @@ class Menu():
 
     def add_child(self, child:object, label:str|None = None):
         submenu = self.root.add_cascade(menu = child.root, label = label)
-        print(self.root)
-        print(submenu)
         return submenu
 
     def add_command(self, menu_args:dict):
