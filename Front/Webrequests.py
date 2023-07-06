@@ -56,9 +56,9 @@ class user():
         self.username = username
         self.hashed_password = hashed_password
         self.email = email
-        self.uuid = self.gen_uuid()
+        self.uuid = self.create_user()
 
-    def gen_uuid(self) -> str:
+    def create_user(self) -> str:
         data = {
                 'username':self.username,
                 'hashed_password':self.hashed_password,
@@ -100,3 +100,16 @@ class user():
         data = {'sender_uuid':self.uuid}
         response = post(f'/friend/{recipient}', data)
         return response.get_status < 400
+    
+    
+    def create_server(self, server_name:str):
+        data = {'server_name':server_name}
+        return post('/create/server', data).parse('usid')
+    
+    def create_user(self) -> str:
+        data = {
+                'username':self.username,
+                'hashed_password':self.hashed_password,
+                'email':self.email
+                }
+        return post('/create/user', data).parse('uuid')
