@@ -14,7 +14,7 @@ import re
 
 ##~~ STUPIDLY UNSAFE TESTING BELOW ~~##
 def clear_tables():
-    import db
+    import DB as db
     db.clear_tables()
     print(f"tables cleared")
     return True
@@ -141,6 +141,11 @@ def add_friend(from_uuid:int, to_uuid:int) -> bool:
         connection.commit()
         print(f"FRIENDED: between {from_uuid} and {to_uuid}")
         return True
+
+def search(username:str) -> str|None:
+    connection = sqlite3.connect('DB.db')
+    cursor = connection.cursor()
+    return cursor.execute(f"SELECT uuid FROM user WHERE username == '{username}'").fetchone()
 
 
 ##~~ SERVER SECTION BELOW ~~##

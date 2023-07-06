@@ -17,7 +17,7 @@ View/Send/Update/Delete = /private/<uuid> | /server/<usid> andand GET, POST, PUT
 ##~~ IMPORTS SECTION BELOW ~~##
 
 from flask import Flask, request
-import database_access as dba
+import DB_Access as dba
 import random
 
 
@@ -150,6 +150,15 @@ def add_friend(recipient_uuid:int) -> bool and int:
     else:
         return response, 400
 
+@app.route('/search/<username>', methods = ['GET'])
+def search(username:str) -> int and bool:
+    uuid = dba.search_user(username)
+    if uuid != None:
+        response = {'uuid':uuid}
+        return response, 200
+    else:
+        response = {'error':'username not associated with uuid'}
+        return response, 400
 
 ##~~ SERVER ACTIONS BELOW ~~~#
 
