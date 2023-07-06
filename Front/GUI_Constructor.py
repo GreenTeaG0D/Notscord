@@ -18,14 +18,14 @@ class Window_Item():
         self.item.config(args)
         return self.item
     
-    def get(self, start:str|float|None = None, end:str|float|None = None):
-        return self.item.get(start, end)
+    def get(self):
+        return self.item.get()
 
 class Button(Window_Item):
     
     def __init__(self, master:Window, item_args:dict, placement_args:dict, keybind_func=None):
-        super().__init__(placement_args, keybind_func)
         self.item = tk.Button(master.root, item_args)  
+        super().__init__(placement_args, keybind_func)
 
     #Overrides the class get
     def get(self, *args, **kwargs):
@@ -39,7 +39,7 @@ class Text_Box(Window_Item):
 class Entry_Box(Window_Item):
     def __init__(self, master:Window, item_args:dict, placement_args:dict, keybind_func=None):
         self.item = tk.Entry(master.root, item_args)
-        super().__init__(item_args, placement_args, keybind_func)
+        super().__init__(placement_args, keybind_func)
 
 class Check_Box(Window_Item):
     def __init__(self, master:Window, item_args:dict, placement_args: dict, keybind_func=None):
@@ -53,19 +53,24 @@ class Label(Window_Item):
 
 
 class Menu():
+    
+    _cls_top_level_master = None
+    
     def __init__(self, master:object, tearoff:bool|int = 0):
-        self.menu = tk.Menu(master=master, tearoff=tearoff)
-        if master == tk.Tk:
-            master.config(menu = self.menu)
+        self.root = tk.Menu(master=master.root, tearoff=tearoff)
+        
+        if Menu._cls_top_level_master == None:
+            Menu._cls_top_level_master = master.root
+            master.root.config(menu = self.root)
 
     def add_child(self, child:object, label:str):
-        submenu = self.menu.add_cascade(menu = child, label = label)
+        submenu = self.root.add_cascade(menu = child, label = label)
         return submenu
 
     def add_command(self, menu_args:dict|None = None):
-        command = self.menu.add_command(menu_args)
+        command = self.root.add_command(menu_args)
         return command
 
     def add_seperator(self):
-        separator = self.menu.add_separator()
+        separator = self.root.add_separator()
         return separator
