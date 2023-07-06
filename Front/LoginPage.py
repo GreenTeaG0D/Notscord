@@ -25,7 +25,8 @@ def open_help_website():
 menubar = GC.Menu(window)
 help_menu = GC.Menu(menubar)
 menubar.add_child(help_menu, 'Help')
-help_menu.add_command({'label':'Website'})
+help_menu.add_command({'label':'Website', 'command':open_help_website})
+help_menu.add_seperator()
 
 # root.config(menu = menubar.root)
 root.mainloop()
