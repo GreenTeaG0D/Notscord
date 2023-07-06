@@ -25,7 +25,7 @@ class Button(Window_Item):
     
     def __init__(self, master:Window, item_args:dict, placement_args:dict, keybind_func=None):
         super().__init__(placement_args, keybind_func)
-        self.item = tk.Button(master.root, self.item_args)  
+        self.item = tk.Button(master.root, item_args)  
 
     #Overrides the class get
     def get(self, *args, **kwargs):
@@ -38,7 +38,7 @@ class Text_Box(Window_Item):
 
 class Entry_Box(Window_Item):
     def __init__(self, master:Window, item_args:dict, placement_args:dict, keybind_func=None):
-        self.item = tk.Entry(master.root, self.item_args)
+        self.item = tk.Entry(master.root, item_args)
         super().__init__(item_args, placement_args, keybind_func)
 
 class Check_Box(Window_Item):
