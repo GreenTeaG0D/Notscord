@@ -16,18 +16,6 @@ class request():
     
     def is_valid_response(self) -> bool:
         return self.status_code < 400
-    
-    def get_response(self) -> str:
-        return self.response
-
-    def get_status(self) -> int:
-        return self.status_code
-
-    def get_content(self) -> str:
-        return self.content
-
-    def get_text(self) -> str:
-        return self.text
 
 class get(request):
     def __init__(self, extension:str, data:dict|None = None) -> None:
@@ -54,85 +42,79 @@ class delete(request):
         super().__init__(response)
 
 
+class server_action():
+    def __init__(self, server_name:str, usid:int|None = None):
+        self.server_name = server_name
+        if not usid:
+            usid = self.create_server()
+        self.usid = usid
+        self.url = f'/server/{usid}'
+
+    def create_server(self) -> int:
+        data = {'server_name':self.server_name}
+        usid =  post('/create/server', data).parse('usid')
+        return usid
+
+    def get_messages(self, count:int) -> list:
+        data = {'count':count}
+        return get(self.url, data).parse('messages')
+    
+class server_message(server_action):
+    def __init__(self, server_name: str, usid: int | None = None):
+        super().__init__(server_name, usid)
+        self.umid = None
+        self.uuid = None
+    
+    def send(self, uuid:int, content:str) -> int:
+        self.uuid = uuid
+        data = {'uuid':self.uuid, 'content':content}
+        self.umid = post(self.url, data).parse('umid')
+        return self.umid
+    
+    def modify(self, content:str):
+        data = {'uuid':self.uuid, 'content':content, 'umid':self.umid}
+        return put(self.url, data).is_valid_response()
+    
+    def delete(self):
+        data = {'uuid':self.uuid, 'umid':self.umid}
+        return delete(self.url, data).is_valid_response()
+
+
 class user():
     def __init__(self, username:str, hashed_password:str, email:str):
         self.username = username
         self.hashed_password = hashed_password
         self.email = email
-        self.uuid = self.create_user()
-        self.my_servers = {}
 
-    def create_user(self) -> str:
+    def create_user(self) -> int:
         data = {
                 'username':self.username,
                 'hashed_password':self.hashed_password,
                 'email':self.email
                 }
-        return post('/create/user', data).parse('uuid')
-
-    def get_uuid_by_username(recipient:int|str) -> int:
-        if type(recipient) == str:
-            recipient = get(f'/search/user/{recipient}').parse('uuid')
-        return recipient 
-
-    def send_private_message(self, recipient:int|str, content:str) -> int:
-        recipient = self.get_uuid_by_username(recipient)
-        data = {'sender_uuid':self.uuid, 'content':content}
-        umid = post(f'/private/{recipient}', data).parse('umid')
-        return umid
-
-    def modify_private_message(self, recipient:int|str, umid:int, content:str) -> bool:
-        recipient = self.get_uuid_by_username(recipient)
-        data = {'sender_uuid':self.uuid, 'umid':umid, 'content':content}
-        response = put(f'/private/{recipient}', data)
-        return response.is_valid_response()
-
-    def delete_private_message(self, recipient:int|str, umid:int) -> bool:
-        recipient = self.get_uuid_by_username(recipient)
-        data = {'sender_uuid':self.uuid, 'umid':umid}
-        response = delete(f'/private/{recipient}', data)
-        return response.status_code < 400
+        self.uuid = post('/create/user', data).parse('uuid')
+        return self.uuid
     
-    def get_private_messages(self, recipient:int|str, count:int) -> dict:
-        recipient = self.get_uuid_by_username(recipient)
-        data = {'sender_uuid':self.uuid, 'count':count}
-        messages = get(f'/private/{recipient}', data).parse('messages')
-        return messages
+    def get_messages(self, recipient_uuid:int, count:int):
+        data = {'recipient_uuid':recipient_uuid, 'count':count}
+        return get(self.url, data).parse('messages')
+ 
+class private_message(user):
+    def __init__(self, username: str, hashed_password: str, email: str):
+        super().__init__(username, hashed_password, email)
+        self.umid = None
+        self.recipient_uuid = None
+        self.url = f'/private/{self.recipient_uuid}'
 
-    def add_friend(self, recipient:int|str) -> bool:
-        recipient = self.get_uuid_by_username(recipient)
-        data = {'sender_uuid':self.uuid}
-        response = post(f'/friend/{recipient}', data)
-        return response.is_valid_response
+    def send(self, recipient_uuid:int, content:str) -> int:
+        self.recipient_uuid = recipient_uuid
+        data = {'recipient_uuid':recipient_uuid, 'content':content}
+        return post(self.url, data).parse('umid')
     
+    def modify(self, content:str) -> bool:
+        data = {'recipient_uuid':self.recipient_uuid, 'content':content}
+        return put(self.url, data).is_valid_response()
     
-    def get_usid_by_name(recipient:int|str) -> int:
-        if type(recipient) == str:
-            recipient = get(f'/search/server/{recipient}').parse('uuid')
-        return recipient
-
-    def create_server(self, server_name:str) -> int:
-        data = {'server_name':server_name}
-        usid =  post('/create/server', data).parse('usid')
-        self.my_servers[server_name] = usid
-        return usid
-        
-    def send_server_message(self, server:int|str, content:str) -> int:
-        usid = self.get_usid_by_name(server)
-        data = {'uuid':self.uuid, 'content':content}
-        return post(f'/server/{usid}', data = data).parse('umid')
-    
-    def update_server_message(self, server:int|str, umid:int, content:str) -> bool:
-        usid = self.get_usid_by_name(server)
-        data = {'umid':umid, 'content':content}
-        return put(f'/server/{usid}', data = data).is_valid_response()
-    
-    def delete_server_message(self, server:int|str, umid:int) -> bool:
-        usid = self.get_usid_by_name(server)
-        data = {'umid':umid}
-        return delete(f'/server/{usid}', data = data).is_valid_response()
-    
-    def get_server_messages(self, server:int|str, count:int) -> dict:
-        usid = self.get_usid_by_name(server)
-        data = {'count':count}
-        return get(f'/server/{usid}', data = data).parse('messages')
+    def delete(self) -> bool:
+        data = {'umid':self.umid, 'recipient_uuid':self.recipient_uuid}
+        return delete(self.url, data).is_valid_response()
