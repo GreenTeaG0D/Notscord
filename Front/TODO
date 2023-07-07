@@ -1,0 +1,1 @@
+1. Rework Webrequest.py class structure (eg; create_user just returns while create_server appends self dict and returns)

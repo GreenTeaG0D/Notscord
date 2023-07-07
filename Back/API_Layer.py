@@ -82,9 +82,11 @@ def create(creation:str) -> dict and int:
         
     elif creation.lower() == "server":
         server_name = request.form.get('server_name')
+        creator_uuid = request.form.get('creator_uuid')
         usid = genID("server", "usid")
         success = dba.create_server(usid, server_name)
         if success:
+            dba.join_server(usid, creator_uuid)
             response = {"success": success, "usid": usid}
             return response, 201
         else:
@@ -150,8 +152,8 @@ def add_friend(recipient_uuid:int) -> bool and int:
     else:
         return response, 400
 
-@app.route('/search/<username>', methods = ['GET'])
-def search(username:str) -> int and bool:
+@app.route('/search/user/<username>', methods = ['GET'])
+def search_user(username:str) -> int|str and bool:
     uuid = dba.search_user(username)
     if uuid != None:
         response = {'uuid':uuid}
@@ -215,6 +217,15 @@ def join_server(usid:int) -> bool and int:
     else:
         return response, 400
 
+@app.route('search/server/<server_name>', methods = ['GET'])
+def search_server(server_name:str) -> int|str and bool:
+    usid = dba.search_server(server_name)
+    if usid != None:
+        response = {'uuid':usid}
+        return response, 200
+    else:
+        response = {'error':'server name not associated with usid'}
+        return response, 400
 
 ##~~ RUNNER BELOW ~~##
 

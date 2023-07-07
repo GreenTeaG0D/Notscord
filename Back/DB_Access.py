@@ -142,7 +142,7 @@ def add_friend(from_uuid:int, to_uuid:int) -> bool:
         print(f"FRIENDED: between {from_uuid} and {to_uuid}")
         return True
 
-def search(username:str) -> str|None:
+def search_user(username:str) -> str|None:
     connection = sqlite3.connect('DB.db')
     cursor = connection.cursor()
     return cursor.execute(f"SELECT uuid FROM user WHERE username == '{username}'").fetchone()
@@ -236,3 +236,8 @@ def join_server(usid:int, uuid:int) -> bool:
         connection.commit()
         print(f"JOINED: {uuid} joined {usid}")
         return True
+
+def search_server(server_name:str) -> str|None:
+    connection = sqlite3.connect('DB.db')
+    cursor = connection.cursor()
+    return cursor.execute(f"SELECT usid FROM server WHERE name == '{server_name}'").fetchone()
