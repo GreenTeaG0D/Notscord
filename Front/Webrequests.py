@@ -80,11 +80,12 @@ class server_message(server_action):
         return delete(self.url, data).is_valid_response()
 
 
-class user():
+class user_account():
     def __init__(self, username:str, hashed_password:str, email:str):
         self.username = username
         self.hashed_password = hashed_password
         self.email = email
+        self.uuid = None
 
     def create_user(self) -> int:
         data = {
@@ -99,7 +100,7 @@ class user():
         data = {'recipient_uuid':recipient_uuid, 'count':count}
         return get(self.url, data).parse('messages')
  
-class private_message(user):
+class user(user_account):
     def __init__(self, username: str, hashed_password: str, email: str):
         super().__init__(username, hashed_password, email)
         self.umid = None

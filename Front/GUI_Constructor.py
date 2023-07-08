@@ -1,4 +1,8 @@
 import tkinter as tk
+from tkinter import messagebox
+
+def gen_root():
+    return tk.Tk()
 
 class Window():
     
@@ -14,12 +18,16 @@ class Window_Item():
         if keybind_func: self.item.bind('<KeyPress>', keybind_func)
         self.item.grid(placement_args)
 
-    def config(self, args:dict):
+    def config(self, args:dict) -> object:
         self.item.config(args)
         return self.item
     
-    def get(self):
+    def get(self) -> str|bool:
         return self.item.get()
+    
+    def clear(self) -> object:
+        self.item.delete(0, tk.END)
+        return self.item
 
 class Button(Window_Item):
     
@@ -51,6 +59,10 @@ class Label(Window_Item):
         self.item = tk.Label(master.root, item_args)
         super().__init__(placement_args, keybind_func)
 
+
+class Error_Message():
+    def __init__(self, title:str, message:str):
+        self.message = messagebox.showerror(title, message)
 
 class Menu():
     
