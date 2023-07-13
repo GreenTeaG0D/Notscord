@@ -17,13 +17,34 @@ def KB_Username(event):
 
 def KB_Password(event):
     # Password must be between 8 and 32 characters long
-    length = len(E_Password.get())
-    if length < 7:
-        L_Valid_Password.config({'text':7 - length, 'fg':'red'})
-    elif length > 31:
-        L_Valid_Password.config({'text':31 - length, 'fg':'red'})
+    password = E_Password.get()
+    char = event.keysym
+    
+    if len(char) == 1:
+        password += char
+    elif char == 'BackSpace':
+        password = password[:-1]
+        
+    length = len(password)
+    
+    if length < 8:
+        L_Valid_Password.config({'text':f'Too Short, +{8 - length}', 'fg':'red'})
+    elif length > 32:
+        L_Valid_Password.config({'text':f'Too Long, {32 - length}', 'fg':'red'})
+        
     else:
-        L_Valid_Password.config({'text':'Valid Password', 'fg':'green'})
+        password_required_values = ['!']
+        missing_requirements = []
+        flag = False
+        for requirement in password_required_values:
+            if requirement not in password:
+                missing_requirements.append(requirement)
+                flag = True
+        if flag:
+            L_Valid_Password.config({'text':f'Length Valid but missing {missing_requirements}', 'fg':'red'})
+        else:
+            L_Valid_Password.config({'text':'Valid Password', 'fg':'green'})
+
 
 def KB_Email(event):
     # Email must fulfil regex
